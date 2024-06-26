@@ -1,4 +1,4 @@
-package com.maeumteo.maeumteobackend.main;
+package com.maeumteo.maeumteobackend.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,12 +8,14 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class MainController {
+public class ItemController {
 
-    private final MainService mainService;
+    private final ItemService itemService;
 
-//    @GetMapping("/")
-//    public List<> menu() {
-//        return mainService.menu();
-//    }
+    @GetMapping("/allItems")
+    public List<Item> allItems() {
+        return itemService.findAll();
+    }
+
+
 }
