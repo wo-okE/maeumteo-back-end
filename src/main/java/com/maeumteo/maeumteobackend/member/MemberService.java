@@ -4,6 +4,8 @@ import com.maeumteo.maeumteobackend.item.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -17,7 +19,11 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public Member loginMember(Member member) {
-        return memberRepository.findByIdAndPassword(member.getId(),member.getPassword()).get();
+    public Optional<Member> loginMember(String id, String password) {
+        return memberRepository.findByIdAndPassword(id,password);
+    }
+
+    public String getUserPassword(String id) {
+        return memberRepository.findById(id).get().getPassword();
     }
 }
