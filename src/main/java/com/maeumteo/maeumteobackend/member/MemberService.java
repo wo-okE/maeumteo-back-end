@@ -15,8 +15,13 @@ public class MemberService {
         return !memberRepository.existsById(id);
     }
 
-    public void joinMember(Member member) {
-        memberRepository.save(member);
+    public boolean joinMember(Member member) {
+        System.out.println("=======================================");
+        Member joinMember = memberRepository.save(member);
+        System.out.println(joinMember);
+        System.out.println(joinMember == null);
+        System.out.println("=======================================");
+        return memberRepository.save(member) == null;
     }
 
     public Optional<Member> loginMember(String id, String password) {
@@ -24,6 +29,15 @@ public class MemberService {
     }
 
     public String getUserPassword(String id) {
+        System.out.println(memberRepository.findById(id));
         return memberRepository.findById(id).get().getPassword();
+    }
+
+    public boolean formCheck(String key, String value){
+        if(key.equals("nickname")){
+            return memberRepository.existsByNickname(value);
+        } else {
+            return memberRepository.existsById(value);
+        }
     }
 }

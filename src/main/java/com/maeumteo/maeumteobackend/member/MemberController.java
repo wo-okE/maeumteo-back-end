@@ -3,13 +3,12 @@ package com.maeumteo.maeumteobackend.member;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,36 +25,40 @@ public class MemberController {
     }
 
     @PostMapping("/join")
-    public ResponseEntity<Member> joinMember(@RequestBody Member member, HttpServletRequest request){
+    public ResponseEntity<?> joinMember(@RequestBody Member member, HttpServletRequest request){
         member.setPassword(passwordEncoder.encode(member.getPassword()));
-        memberservice.joinMember(member);
-        Member loginMember = memberservice.loginMember(member.getId(), member.getPassword()).get();
-        loginMember.setPassword(null);
-
-        HttpSession session = request.getSession();
-        session.setAttribute("loginMember", loginMember);
-
-        return ResponseEntity.ok(loginMember);
-    }
-
-    @PostMapping("/login")
-    public String loginMember(@RequestBody Member member, HttpServletRequest request){
-        System.out.println("=========================================");
-        System.out.println(member.toString());
-        System.out.println("=========================================");
-        String storedPasswordHash = memberservice.getUserPassword(member.getId());
-        boolean passwordMatches = passwordEncoder.matches(member.getPassword(), storedPasswordHash);
-
-        if(passwordMatches) {
-            Member loginMember = memberservice.loginMember(member.getId(), storedPasswordHash).get();
-            loginMember.setPassword(null);
+        if(memberservice.joinMember(member)){
+            Member loginMember = memberservice.loginMember(member.getId(), member.getPassword()).get();
 
             HttpSession session = request.getSession();
             session.setAttribute("loginMember", loginMember);
 
-            return member.getId();
-        } else {
-            return null;
+            return ResponseEntity.ok(loginMember.getNickname());
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> loginMember(@RequestBody LoginRequest loginRequest, HttpServletRequest request){
+        String storedPasswordHash = memberservice.getUserPassword(loginRequest.getId());
+        boolean passwordMatches = passwordEncoder.matches(loginRequest.getPassword(), storedPasswordHash);
+        if(passwordMatches) {
+            Member loginMember = memberservice.loginMember(loginRequest.getId(), storedPasswordHash).get();
+
+            HttpSession session = request.getSession();
+            session.setAttribute("loginMember", loginMember);
+
+            return ResponseEntity.ok(loginMember.getNickname());
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+    }
+
+    @GetMapping("/formcheck/{key}/{value}")
+    public ResponseEntity<Boolean> formCheck(@PathVariable("key") String key,@PathVariable("value") String value){
+        System.out.println(key);
+        System.out.println(value);
+        boolean check = memberservice.formCheck(key, value);
+
+        return ResponseEntity.ok(check);
     }
 }
