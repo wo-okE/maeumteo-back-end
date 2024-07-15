@@ -15,13 +15,10 @@ public class MemberService {
         return !memberRepository.existsById(id);
     }
 
-    public boolean joinMember(Member member) {
-        System.out.println("=======================================");
-        Member joinMember = memberRepository.save(member);
-        System.out.println(joinMember);
-        System.out.println(joinMember == null);
-        System.out.println("=======================================");
-        return memberRepository.save(member) == null;
+    public boolean saveMember(Member member) {
+        Member saveMember = memberRepository.save(member);
+
+        return saveMember != null;
     }
 
     public Optional<Member> loginMember(String id, String password) {
@@ -33,11 +30,11 @@ public class MemberService {
         return memberRepository.findById(id).get().getPassword();
     }
 
-    public boolean formCheck(String key, String value){
+    public String formCheck(String key, String value){
         if(key.equals("nickname")){
-            return memberRepository.existsByNickname(value);
+            return memberRepository.existsByNickname(value) ? null : value;
         } else {
-            return memberRepository.existsById(value);
+            return memberRepository.existsById(value) ? null : value;
         }
     }
 }
