@@ -37,4 +37,8 @@ public class MemberService {
             return memberRepository.existsById(value) ? null : value;
         }
     }
+
+    public Member socialLogin(Member member) {
+        return memberRepository.findById(member.getId()).get();
+    }
 }

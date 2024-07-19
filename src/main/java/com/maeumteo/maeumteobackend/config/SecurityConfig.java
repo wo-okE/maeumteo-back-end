@@ -40,7 +40,7 @@ public class SecurityConfig {
 //                .defaultSuccessUrl("/")
 //        );
 
-        http.logout(logout -> logout.logoutUrl("/logout"));
+//        http.logout(logout -> logout.logoutUrl("/member/logout"));
 
 
 

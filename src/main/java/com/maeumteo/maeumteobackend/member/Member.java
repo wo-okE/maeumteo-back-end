@@ -28,4 +28,10 @@ public class Member implements Serializable {
     private String password;
     @Column
     private String phoneNumber;
+
+    public Member(){}
+    public Member(String username, String nickname) {
+        this.username = username;
+        this.nickname = nickname;
+    }
 }
