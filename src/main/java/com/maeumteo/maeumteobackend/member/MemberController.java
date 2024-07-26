@@ -3,11 +3,13 @@ package com.maeumteo.maeumteobackend.member;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,10 +43,25 @@ public class MemberController {
     public ResponseEntity<?> naverLoginMember(@RequestBody Member member, HttpServletRequest request) {
         Member loginMember = memberservice.socialLogin(member);
         HttpSession session = request.getSession();
-        System.out.println("네이버 로그인");
         session.setAttribute("loginMember", member);
 
         return ResponseEntity.ok(new Member(loginMember.getUsername(),loginMember.getNickname()));
+    }
+
+    @PostMapping("/kakao/callback")
+    public ResponseEntity<?> kakaoLoginCallback(@RequestBody String code) throws IOException {
+        JSONObject jsonObject = new JSONObject(code);
+        code = jsonObject.getString("code");
+        System.out.println("====================================");
+        System.out.println(code);
+        System.out.println("====================================");
+        String access_token = memberservice.kakaoLogin(code);
+        Map<String, Object> userInfo = memberservice.getUserInfo(access_token);
+        //값 꺼내오기위한 처리
+        if(userInfo != null){
+            System.out.println(userInfo.toString());
+        }
+        return null;
     }
 
     @PostMapping("/login")
@@ -85,7 +102,6 @@ public class MemberController {
     public ResponseEntity<?> logout(HttpServletRequest request){
         HttpSession session = request.getSession();
         if(session != null) {
-            System.out.println("세션 초기화");
             session.invalidate();
             return ResponseEntity.ok("Logged out Successfully");
         }
